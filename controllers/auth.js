@@ -127,7 +127,11 @@ exports.checkediflogged = async (req, res, next) => {
             const userFilter = findUserData.filter(value => {
                 return value.length !== 0
             }).flat()[0];
-            if (userFilter === undefined) return res.clearCookie('access_token').send();
+
+            if (typeof userFilter === 'undefined') {
+                res.clearCookie('access_token');
+                res.status(202).send();
+            }
 
             const userInfo = { ...userFilter._doc };
             delete userInfo.password;
