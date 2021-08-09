@@ -7,41 +7,57 @@ const path = require('path');
 // == Import : local
 const upload = require('../config/multer');
 
-exports.handleImageCreateProducer = async (req, res, next) => {
+exports.handleImageProducerAccount = async (req, res, next) => {
     try {
-        const objectId = mongoose.Types.ObjectId();
-        await fs.mkdir(path.join(process.cwd(), `images/producers/${objectId}`))
+        console.log("req.userId :", req.userId);
+        console.log("req.url :", req.url);
 
-        const name = req.files[0].originalname.split(' ').join('_');
-        const fileName = name.split('.')[0];
+        if (!req.files || req.files.length === 0) {
+            console.log("handleImageProducerAccount !req.files");
+            next();
+        } else {
 
-        const sharpStream = sharp(req.files[0].buffer,{
-            failOnError: false,
-            density: 96
-        });
+            let objectId;
+            if (req.userId) {
+                objectId = req.userId;
+            } else {
+                objectId = mongoose.Types.ObjectId();
+                await fs.mkdir(path.join(process.cwd(), `images/producers/${objectId}`))
+            }
 
-        const promises = [];
-        promises.push(
-            sharpStream
-                .clone()
-                .resize({ height: 600 })
-                .webp({ quality: 80 })
-                .toFile(path.join(process.cwd(), `images/producers/${objectId}/${fileName}_h600.webp`))
-        );
-        promises.push(
-            sharpStream
-                .clone()
-                .resize({ height: 140 })
-                .webp({ quality: 80 })
-                .toFile(path.join(process.cwd(), `images/producers/${objectId}/${fileName}_h140.webp`))
-        );
-        await Promise.all(promises);
+            const name = req.files[0].originalname.split(' ').join('_');
+            const fileName = name.split('.')[0];
 
-        req.datafile = {
-            objectId,
-            fileName
-        };
-        next();
+            const sharpStream = sharp(req.files[0].buffer,{
+                failOnError: false,
+                density: 96
+            });
+
+            const promises = [];
+            promises.push(
+                sharpStream
+                    .clone()
+                    .resize({ height: 600 })
+                    .webp({ quality: 80 })
+                    .toFile(path.join(process.cwd(), `images/producers/${objectId}/${fileName}_h600.webp`))
+            );
+            promises.push(
+                sharpStream
+                    .clone()
+                    .resize({ height: 140 })
+                    .webp({ quality: 80 })
+                    .toFile(path.join(process.cwd(), `images/producers/${objectId}/${fileName}_h140.webp`))
+            );
+            await Promise.all(promises);
+
+            req.datafile = {
+                objectId,
+                fileName
+            };
+
+            console.log("handleImageProducerAccount req.files");
+            next();
+        }
     } catch (err) {
         console.log("handleImageCreateProducer err :", err);
         res.status(400).json({ error: err })

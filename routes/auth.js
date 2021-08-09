@@ -10,6 +10,6 @@ router.get('/checkediflogged', authCtrl.checkediflogged);
 router.get('/logout', authCtrl.logout);
 router.post('/login', authCtrl.login);
 router.post('/createUser', authCtrl.checkEmailExist, authCtrl.createUser);
-router.post('/createProducer', authCtrl.checkEmailExist, imageCtrl.handleImageCreateProducer, authCtrl.createProducer);
+router.post('/createProducer', authCtrl.checkEmailExist, imageCtrl.handleImageProducerAccount, authCtrl.createProducer);
 
 module.exports = router;

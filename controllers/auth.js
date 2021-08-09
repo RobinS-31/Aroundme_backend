@@ -77,7 +77,7 @@ exports.createUser = async (req, res, next) => {
         });
 
         await user.save();
-        res.status(201).json({ message: 'Compte crée avec succès !'});
+        res.status(201).json({ message: 'Votre compte à été créé, vous pouvez maintenant vous connecter.'});
     } catch (err) {
         console.log("createUser err :", err);
         res.status(400).json({ error: err, message: "Problème au moment de l'enregistrement de l'utilisateur" }).end();
@@ -99,12 +99,11 @@ exports.createProducer = async (req, res, next) => {
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h600.webp`,
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h140.webp`,
             ],
-            password: passwordHash,
-            categories: [producerData.category]
+            password: passwordHash
         });
 
         await producer.save();
-        res.status(201).json({ message: 'Compte crée avec succès !'});
+        res.status(201).json({ message: 'Votre compte à été créé, vous pouvez maintenant vous connecter.'});
     } catch (err) {
         console.log("createUser err :", err);
         res.status(400).json({ error: err, message: "Problème au moment de l'enregistrement de l'utilisateur" }).end();
@@ -152,7 +151,6 @@ exports.checkediflogged = async (req, res, next) => {
 };
 
 exports.checkEmailExist = async (req, res, next) => {
-
     const checkEmail = async (data, res, next) => {
         const checkEmailExist = await Promise.all([
             User.find({ email: data.email }),
@@ -178,5 +176,37 @@ exports.checkEmailExist = async (req, res, next) => {
     } catch (err) {
         console.log("checkEmailExist err :", err);
         res.status(400).json({ error: err, message: "Problème au moment de la vérification de l'email" }).end();
+    }
+};
+
+exports.checkAuthorisation = async (req, res, next) => {
+    try {
+        if (req.cookies.access_token) {
+            const token = req.cookies.access_token;
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+            const { userId, xsrfToken } = decodedToken;
+
+            console.log("req.url :", req.url);
+
+            if (req.url === '/updateproducer') {
+                upload(req, res, err => {
+                    const data = JSON.parse(req.body.producerData);
+                    console.log("data :", data);
+
+                    if (data.xsrfToken === xsrfToken) {
+                        req.userId = userId;
+                        next();
+                    } else {
+                        res.status(401).send();
+                    }
+                })
+            }
+        } else {
+            res.status(401).send();
+        }
+    } catch (err) {
+        console.log("checkAuthorisation err :", err);
+        res.clearCookie("access_token");
+        res.status(401).send();
     }
 };

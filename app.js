@@ -9,6 +9,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const producersRoutes = require('./routes/producers');
 const categoriesRoutes = require('./routes/category');
+const dashboardRoutes = require('./routes/dashboard');
 
 mongoose.connect(process.env.MONGO_URI,
     {
@@ -33,5 +34,6 @@ app.use('/images', express.static('images'));
 app.use('/api/auth', authRoutes);
 app.use('/api/producers', producersRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 module.exports = app;
