@@ -74,6 +74,8 @@ exports.createUser = async (req, res, next) => {
         const user = new User({
             ...userData,
             password: passwordHash,
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         await user.save();
@@ -99,7 +101,9 @@ exports.createProducer = async (req, res, next) => {
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h600.webp`,
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h140.webp`,
             ],
-            password: passwordHash
+            password: passwordHash,
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
 
         await producer.save();
@@ -186,14 +190,11 @@ exports.checkAuthorisation = async (req, res, next) => {
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
             const { userId, xsrfToken } = decodedToken;
 
-            console.log("req.url :", req.url);
-
             if (req.url === '/updateproducer') {
                 upload(req, res, err => {
                     const data = JSON.parse(req.body.producerData);
-                    console.log("data :", data);
 
-                    if (data.xsrfToken === xsrfToken) {
+                    if (data.xsrfToken === xsrfToken && data.userId === userId) {
                         req.userId = userId;
                         next();
                     } else {

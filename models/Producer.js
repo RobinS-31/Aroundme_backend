@@ -19,7 +19,9 @@ const producerSchema = new mongoose.Schema({
     lat: { type: String, required: true },
     categories: { type: Array, required: true },
     isProducer: { type: Boolean, default: true },
-    products: { type: Array, default: [] }
+    products: { type: Array, default: [] },
+    createdAt: { type: Date },
+    updatedAt: { type: Date }
 });
 
 module.exports = mongoose.model('Producer', producerSchema);

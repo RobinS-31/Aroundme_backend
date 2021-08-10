@@ -9,17 +9,21 @@ const upload = require('../config/multer');
 
 exports.handleImageProducerAccount = async (req, res, next) => {
     try {
-        console.log("req.userId :", req.userId);
-        console.log("req.url :", req.url);
+        const data = JSON.parse(req.body.producerData);
 
         if (!req.files || req.files.length === 0) {
             console.log("handleImageProducerAccount !req.files");
             next();
-        } else {
 
+        } else {
             let objectId;
-            if (req.userId) {
-                objectId = req.userId;
+            if (req.method === "PUT" && data.userId) {
+                objectId = data.userId;
+                await Promise.all(
+                    data.imageUrl.map(async image => {
+                        await fs.unlink(path.join(process.cwd(), image));
+                    })
+                );
             } else {
                 objectId = mongoose.Types.ObjectId();
                 await fs.mkdir(path.join(process.cwd(), `images/producers/${objectId}`))

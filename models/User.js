@@ -10,5 +10,7 @@ const userSchema = new mongoose.Schema({
     phone: { type: String, default: '' },
     email: { type: String, required: true },
     password: { type: String, required: true },
+    createdAt: { type: Date },
+    updatedAt: { type: Date }
 })
 module.exports = mongoose.model('User', userSchema);

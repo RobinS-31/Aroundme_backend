@@ -7,6 +7,6 @@ const authCtrl = require('../controllers/auth');
 const imageCtrl = require('../controllers/image');
 const dashboardCtrl = require('../controllers/dashboard');
 
-router.post('/updateproducer', authCtrl.checkAuthorisation, imageCtrl.handleImageProducerAccount, dashboardCtrl.updateProducer);
+router.put('/updateproducer', authCtrl.checkAuthorisation, imageCtrl.handleImageProducerAccount, dashboardCtrl.updateProducer);
 
 module.exports = router;
