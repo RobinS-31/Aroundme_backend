@@ -9,18 +9,17 @@ const Producer = require('../models/Producer');
 const upload = require('../config/multer');
 
 exports.login = async (req, res, next) => {
-    console.log("login req.body :", req.body);
     try {
         const userData = req.body;
-        const checkEmailExist = await Promise.all([
+        const findUserByEmail = await Promise.all([
             User.find({ email: userData.email }),
             Producer.find({ email: userData.email })
         ]);
 
-        const userFilter = checkEmailExist.filter(value => {
+        const userFilter = findUserByEmail.filter(value => {
             return value.length !== 0
         }).flat()[0];
-        if (userFilter === undefined) return res.status(401).json({ error: 'Adresse email introuvable' }).end();
+        if (userFilter === undefined) return res.status(404).json({ error: 'Adresse email introuvable' }).end();
 
         const checkPassword = await bcrypt.compare(userData.password, userFilter.password);
         if (!checkPassword) return res.status(401).json({ error: 'Adresse email ou mot de passe incorrect' }).end();
@@ -64,7 +63,6 @@ exports.logout = (req, res, next) => {
 };
 
 exports.createUser = async (req, res, next) => {
-    console.log("req.body :", req.body);
     try {
         const userData = req.body;
 
@@ -82,7 +80,7 @@ exports.createUser = async (req, res, next) => {
         res.status(201).json({ message: 'Votre compte à été créé, vous pouvez maintenant vous connecter.'});
     } catch (err) {
         console.log("createUser err :", err);
-        res.status(400).json({ error: err, message: "Problème au moment de l'enregistrement de l'utilisateur" }).end();
+        res.status(400).json({ error: err }).end();
     }
 };
 
@@ -110,7 +108,7 @@ exports.createProducer = async (req, res, next) => {
         res.status(201).json({ message: 'Votre compte à été créé, vous pouvez maintenant vous connecter.'});
     } catch (err) {
         console.log("createUser err :", err);
-        res.status(400).json({ error: err, message: "Problème au moment de l'enregistrement de l'utilisateur" }).end();
+        res.status(400).json({ error: err }).end();
     }
 };
 
@@ -179,7 +177,7 @@ exports.checkEmailExist = async (req, res, next) => {
         }
     } catch (err) {
         console.log("checkEmailExist err :", err);
-        res.status(400).json({ error: err, message: "Problème au moment de la vérification de l'email" }).end();
+        res.status(400).json({ error: err }).end();
     }
 };
 
@@ -195,12 +193,19 @@ exports.checkAuthorisation = async (req, res, next) => {
                     const data = JSON.parse(req.body.producerData);
 
                     if (data.xsrfToken === xsrfToken && data.userId === userId) {
-                        req.userId = userId;
                         next();
                     } else {
                         res.status(401).send();
                     }
                 })
+            } else {
+                const data = req.body;
+
+                if (data.xsrfToken === xsrfToken && data.userId === userId) {
+                    next();
+                } else {
+                    res.status(401).send();
+                }
             }
         } else {
             res.status(401).send();
