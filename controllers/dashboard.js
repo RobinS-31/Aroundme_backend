@@ -38,13 +38,13 @@ exports.updateUser = async (req, res, next) => {
 
 exports.updateProducer = async (req, res, next) => {
     try {
-        const dataFile = req.datafile;
         const producerData = JSON.parse(req.body.producerData);
         const { userId } = producerData;
         delete producerData.xsrfToken;
         delete producerData.userId;
 
         if (req.files.length !== 0) {
+            const dataFile = req.datafile;
             producerData.imageUrl = [
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h600.webp`,
                 `images/producers/${dataFile.objectId}/${dataFile.fileName}_h140.webp`,
