@@ -130,3 +130,28 @@ exports.updatePasswordAccount = async (req, res, next) => {
         res.status(400).json({ error: err }).end();
     }
 };
+
+exports.updateProducerProducts = async (req, res, next) => {
+    try {
+        const userId = req.body.userId;
+        const productsData = req.body.producerProducts;
+        const updateProducts = await Producer.findByIdAndUpdate(
+            userId,
+            {
+                products: productsData,
+                updatedAt: new Date()
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+        if (!updateProducts) return res.status(404).json({ error: 'no match ID' });
+
+        res.status(200).json(updateProducts);
+
+    } catch (err) {
+        console.log("updateProducerProducts err :", err);
+        res.status(400).json({ error: err }).end();
+    }
+};
