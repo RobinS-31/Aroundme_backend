@@ -133,12 +133,12 @@ exports.updatePasswordAccount = async (req, res, next) => {
 
 exports.updateProducerProducts = async (req, res, next) => {
     try {
-        const userId = req.body.userId;
-        const productsData = req.body.producerProducts;
+        const { userId, producerProducts } = req.body;
+
         const updateProducts = await Producer.findByIdAndUpdate(
             userId,
             {
-                products: productsData,
+                products: producerProducts,
                 updatedAt: new Date()
             },
             {
@@ -148,7 +148,11 @@ exports.updateProducerProducts = async (req, res, next) => {
         );
         if (!updateProducts) return res.status(404).json({ error: 'no match ID' });
 
-        res.status(200).json(updateProducts);
+        const producerInfo = { ...updateProducts._doc }
+        delete producerInfo.password;
+        delete producerInfo.__v;
+
+        res.status(200).json(producerInfo);
 
     } catch (err) {
         console.log("updateProducerProducts err :", err);
