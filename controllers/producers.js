@@ -19,9 +19,7 @@ exports.getOneProducer = async (req, res, next) => {
         const producer = await Producer.findById(req.params.id);
         if (!producer) return res.status(202).json({ message: "Aucun producteur trouvé" }).end();
 
-        const products = await Product.find({ '_id': { $in: producer.products } });
-
-        const producerData = { ...producer._doc, productsData: products };
+        const producerData = { ...producer._doc };
         delete producerData.password;
         delete producerData.__v;
 
