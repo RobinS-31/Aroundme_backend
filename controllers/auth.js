@@ -57,7 +57,11 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-    res.clearCookie('access_token');
+    res.clearCookie('access_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    });
     res.status(200);
     res.send();
 };
