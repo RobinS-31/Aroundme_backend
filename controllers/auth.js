@@ -41,8 +41,8 @@ exports.login = async (req, res, next) => {
         res.cookie('access_token', token, {
             maxAge: 172800000,
             httpOnly: true,
-            secure: true
-            // sameSite: "lax"
+            secure: true,
+            sameSite: "none"
         });
         res.status(200).json({
             xsrfToken,
